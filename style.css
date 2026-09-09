@@ -243,6 +243,10 @@ body {
     border: none;
     background: transparent;
     font-family: var(--font);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
 }
 .login-tab.active {
     background: var(--primary-gradient);
@@ -1200,4 +1204,9 @@ body {
     to {
         transform: rotate(360deg);
     }
+}
+
+/* Override group search bar corner radius to 22px */
+#groupSearchBar {
+    border-radius: 22px;
 }
