@@ -27,7 +27,7 @@ let homeSearchFilter = '';
 let userSearchFilter = '';
 let selectedGroupMembers = new Set();
 let groupMemberSearchFilter = '';
-let activeScreen = 'loginScreen';
+let activeScreen = 'splashScreen'; // Start on splash screen
 let toastTimeout = null;
 
 // ============ COOKIE HELPERS ============
@@ -36,17 +36,23 @@ function setCookie(name, value, days = 30) {
     d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
     document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
 }
+
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : null;
 }
+
 function deleteCookie(name) {
     document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
 }
 
 // ============ AVATAR HELPERS ============
 function getAvatarColor(uid) {
-    const colors = ['#7C3AED', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#8B5CF6', '#06B6D4', '#F97316', '#14B8A6', '#6366F1', '#D946EF', '#84CC16', '#0EA5E9', '#F43F5E'];
+    const colors = [
+        '#7C3AED', '#EC4899', '#F59E0B', '#10B981', '#3B82F6',
+        '#EF4444', '#8B5CF6', '#06B6D4', '#F97316', '#14B8A6',
+        '#6366F1', '#D946EF', '#84CC16', '#0EA5E9', '#F43F5E'
+    ];
     let hash = 0;
     const str = uid || 'default';
     for (let i = 0; i < str.length; i++) {
@@ -54,6 +60,7 @@ function getAvatarColor(uid) {
     }
     return colors[Math.abs(hash) % colors.length];
 }
+
 function getInitials(name) {
     if (!name) return '?';
     const parts = name.trim().split(/\s+/);
@@ -69,16 +76,23 @@ function showToast(message, type = '') {
     if (type) toast.classList.add(type);
     toast.classList.add('show');
     if (toastTimeout) clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => toast.classList.remove('show'), 2800);
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2800);
 }
 
 // ============ LOADING ============
-function showLoading() { document.getElementById('loadingOverlay').classList.add('visible'); }
-function hideLoading() { document.getElementById('loadingOverlay').classList.remove('visible'); }
+function showLoading() {
+    document.getElementById('loadingOverlay').classList.add('visible');
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.remove('visible');
+}
 
 // ============ SCREEN NAVIGATION ============
 function showScreen(screenId) {
-    const screens = ['loginScreen', 'homeScreen', 'newChatScreen', 'createGroupScreen', 'userInfoScreen', 'chatScreen'];
+    const screens = ['splashScreen', 'loginScreen', 'homeScreen', 'newChatScreen', 'createGroupScreen', 'userInfoScreen', 'chatScreen'];
     screens.forEach(id => {
         const el = document.getElementById(id);
         if (id === screenId) {
@@ -92,7 +106,12 @@ function showScreen(screenId) {
     activeScreen = screenId;
 }
 
-function goBackToHome() { closeUserInfo(); showScreen('homeScreen'); renderHomeChats(); }
+function goBackToHome() {
+    closeUserInfo();
+    showScreen('homeScreen');
+    renderHomeChats();
+}
+
 function closeCreateGroupScreen() {
     showScreen('newChatScreen');
     selectedGroupMembers.clear();
@@ -101,10 +120,19 @@ function closeCreateGroupScreen() {
     renderSelectedMembers();
     renderGroupMemberResults([]);
 }
-function closeUserInfo() { if (activeScreen === 'userInfoScreen') showScreen('newChatScreen'); }
+
+function closeUserInfo() {
+    if (activeScreen === 'userInfoScreen') {
+        showScreen('newChatScreen');
+    }
+}
+
 function openChatInfo() {
-    if (currentOtherUserUid && currentChatData?.type === 'direct') showUserInfo(currentOtherUserUid);
-    else if (currentChatData?.type === 'group') showToast('Group chat', 'success');
+    if (currentOtherUserUid && currentChatData?.type === 'direct') {
+        showUserInfo(currentOtherUserUid);
+    } else if (currentChatData?.type === 'group') {
+        showToast('Group chat', 'success');
+    }
 }
 
 // ============ LOGIN TABS ============
@@ -114,8 +142,10 @@ function switchLoginTab(tab) {
     const loginForm = document.getElementById('loginFormSection');
     const registerForm = document.getElementById('registerFormSection');
     const errorEl = document.getElementById('loginError');
+
     errorEl.classList.remove('visible');
     errorEl.style.display = 'none';
+
     if (tab === 'login') {
         loginTab.classList.add('active');
         registerTab.classList.remove('active');
@@ -136,7 +166,7 @@ function showLoginError(message) {
     errorEl.classList.add('visible');
     setTimeout(() => {
         errorEl.classList.remove('visible');
-        setTimeout(() => errorEl.style.display = 'none', 400);
+        setTimeout(() => { errorEl.style.display = 'none'; }, 400);
     }, 3000);
 }
 
@@ -144,7 +174,10 @@ function showLoginError(message) {
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
-    if (!email || !password) { showLoginError('Please enter both email and password.'); return; }
+    if (!email || !password) {
+        showLoginError('Please enter both email and password.');
+        return;
+    }
     showLoading();
     try {
         const result = await auth.signInWithEmailAndPassword(email, password);
@@ -164,9 +197,19 @@ async function handleRegister() {
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
     const confirm = document.getElementById('regConfirmPassword').value;
-    if (!name || !email || !password || !confirm) { showLoginError('Please fill in all fields.'); return; }
-    if (password.length < 6) { showLoginError('Password must be at least 6 characters.'); return; }
-    if (password !== confirm) { showLoginError('Passwords do not match.'); return; }
+
+    if (!name || !email || !password || !confirm) {
+        showLoginError('Please fill in all fields.');
+        return;
+    }
+    if (password.length < 6) {
+        showLoginError('Password must be at least 6 characters.');
+        return;
+    }
+    if (password !== confirm) {
+        showLoginError('Passwords do not match.');
+        return;
+    }
     showLoading();
     try {
         const result = await auth.createUserWithEmailAndPassword(email, password);
@@ -211,29 +254,40 @@ async function handleLogout() {
 
 function getAuthErrorMessage(error) {
     switch (error.code) {
-        case 'auth/user-not-found': return 'No account found with this email.';
-        case 'auth/wrong-password': return 'Incorrect password. Please try again.';
-        case 'auth/invalid-email': return 'Invalid email address.';
-        case 'auth/email-already-in-use': return 'This email is already registered.';
-        case 'auth/weak-password': return 'Password is too weak. Use at least 6 characters.';
-        case 'auth/too-many-requests': return 'Too many attempts. Please try again later.';
-        case 'auth/network-request-failed': return 'Network error. Check your connection.';
-        default: return error.message || 'An error occurred. Please try again.';
+        case 'auth/user-not-found':
+            return 'No account found with this email.';
+        case 'auth/wrong-password':
+            return 'Incorrect password. Please try again.';
+        case 'auth/invalid-email':
+            return 'Invalid email address.';
+        case 'auth/email-already-in-use':
+            return 'This email is already registered.';
+        case 'auth/weak-password':
+            return 'Password is too weak. Use at least 6 characters.';
+        case 'auth/too-many-requests':
+            return 'Too many attempts. Please try again later.';
+        case 'auth/network-request-failed':
+            return 'Network error. Check your connection.';
+        default:
+            return error.message || 'An error occurred. Please try again.';
     }
 }
 
-// ============ AUTH STATE LISTENER ============
+// ============ AUTH STATE LISTENER (with splash) ============
 auth.onAuthStateChanged(async (user) => {
+    const minSplashTime = 1500; // in ms
+    const startTime = Date.now();
+
     if (user) {
         currentUser = user;
-        const savedEmail = getCookie('chatverse_user_email');
-        const savedUid = getCookie('chatverse_user_uid');
-        const savedName = getCookie('chatverse_user_name');
-        if (!savedUid) {
+
+        // Check/set cookies
+        if (!getCookie('chatverse_user_uid')) {
             setCookie('chatverse_user_email', user.email || '');
             setCookie('chatverse_user_uid', user.uid);
             setCookie('chatverse_user_name', user.displayName || '');
         }
+
         try {
             showLoading();
             const userSnap = await db.ref('users/' + user.uid).get();
@@ -249,23 +303,39 @@ auth.onAuthStateChanged(async (user) => {
                 };
                 await db.ref('users/' + user.uid).set(currentUserData);
             }
+
             document.getElementById('homeAvatarText').textContent = getInitials(currentUserData.name);
             document.getElementById('homeAvatar').style.background = currentUserData.avatarColor || getAvatarColor(user.uid);
             document.getElementById('homeUserSubtitle').textContent = currentUserData.name || user.email;
+
             await loadFriends();
             await loadChats();
-            showScreen('homeScreen');
-            renderHomeChats();
+
+            const elapsed = Date.now() - startTime;
+            const delay = Math.max(0, minSplashTime - elapsed);
+            setTimeout(() => {
+                hideLoading();
+                showScreen('homeScreen');
+                renderHomeChats();
+            }, delay);
         } catch (error) {
             console.error('Error loading user data:', error);
-            showToast('Error loading data', 'error');
-        } finally {
-            hideLoading();
+            const elapsed = Date.now() - startTime;
+            const delay = Math.max(0, minSplashTime - elapsed);
+            setTimeout(() => {
+                hideLoading();
+                showScreen('loginScreen');
+                showToast('Error loading data', 'error');
+            }, delay);
         }
     } else {
-        currentUser = null;
-        currentUserData = null;
-        showScreen('loginScreen');
+        // No user signed in
+        const elapsed = Date.now() - startTime;
+        const delay = Math.max(0, minSplashTime - elapsed);
+        setTimeout(() => {
+            hideLoading();
+            showScreen('loginScreen');
+        }, delay);
     }
 });
 
@@ -279,7 +349,9 @@ async function loadFriends() {
         for (const uid of friendUids) {
             if (!allUsersCache[uid]) {
                 const userSnap = await db.ref('users/' + uid).get();
-                if (userSnap.exists()) allUsersCache[uid] = { uid, ...userSnap.val() };
+                if (userSnap.exists()) {
+                    allUsersCache[uid] = { uid, ...userSnap.val() };
+                }
             }
         }
     } catch (error) {
@@ -300,7 +372,9 @@ async function loadChats() {
                     const otherUid = Object.keys(chat.participants).find(uid => uid !== currentUser.uid);
                     if (otherUid && !allUsersCache[otherUid]) {
                         const userSnap = await db.ref('users/' + otherUid).get();
-                        if (userSnap.exists()) allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+                        if (userSnap.exists()) {
+                            allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+                        }
                     }
                 }
             }
@@ -328,13 +402,17 @@ function listenToChatUpdates() {
                         if (otherUid && !allUsersCache[otherUid]) {
                             try {
                                 const userSnap = await db.ref('users/' + otherUid).get();
-                                if (userSnap.exists()) allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+                                if (userSnap.exists()) {
+                                    allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+                                }
                             } catch (e) {}
                         }
                     }
                 }
             }
-            if (activeScreen === 'homeScreen') renderHomeChats();
+            if (activeScreen === 'homeScreen') {
+                renderHomeChats();
+            }
         });
 }
 
@@ -349,10 +427,12 @@ async function searchUsers(query) {
     document.getElementById('friendsListSection').style.display = 'none';
     document.getElementById('searchResultsSection').style.display = 'block';
     document.getElementById('searchResultsTitle').textContent = `Results for "${query}"`;
+
     const resultsList = document.getElementById('searchResultsList');
     const emptyState = document.getElementById('searchEmptyState');
     resultsList.innerHTML = '';
     showLoading();
+
     try {
         const usersSnap = await db.ref('users').get();
         const allUsers = usersSnap.val() || {};
@@ -370,7 +450,9 @@ async function searchUsers(query) {
             emptyState.style.display = 'flex';
         } else {
             emptyState.style.display = 'none';
-            results.forEach(user => resultsList.appendChild(createUserListItem(user)));
+            results.forEach(user => {
+                resultsList.appendChild(createUserListItem(user));
+            });
         }
     } catch (error) {
         console.error('Search error:', error);
@@ -401,8 +483,10 @@ function createUserListItem(userData, isFriend = false) {
     const div = document.createElement('div');
     div.className = 'user-item';
     div.setAttribute('data-uid', userData.uid);
+
     const avatarColor = userData.avatarColor || getAvatarColor(userData.uid);
     const initials = getInitials(userData.name || userData.email || '?');
+
     let actionBtn = '';
     if (isFriend) {
         actionBtn = `<button class="user-action-btn message" onclick="event.stopPropagation();startDirectChat('${userData.uid}')"><i class="fas fa-comment-dots"></i> Chat</button>`;
@@ -414,6 +498,7 @@ function createUserListItem(userData, isFriend = false) {
             actionBtn = `<button class="user-action-btn add" onclick="event.stopPropagation();addFriend('${userData.uid}')"><i class="fas fa-user-plus"></i> Add</button>`;
         }
     }
+
     div.innerHTML = `
         <div class="user-avatar" style="background:${avatarColor};">${initials}</div>
         <div class="user-info">
@@ -422,7 +507,11 @@ function createUserListItem(userData, isFriend = false) {
         </div>
         ${actionBtn}
     `;
-    div.addEventListener('click', () => showUserInfo(userData.uid));
+
+    div.addEventListener('click', () => {
+        showUserInfo(userData.uid);
+    });
+
     return div;
 }
 
@@ -430,16 +519,25 @@ async function addFriend(friendUid) {
     if (!currentUser || !friendUid) return;
     showLoading();
     try {
-        await db.ref(`friends/${currentUser.uid}/${friendUid}`).set({ addedAt: firebase.database.ServerValue.TIMESTAMP });
-        await db.ref(`friends/${friendUid}/${currentUser.uid}`).set({ addedAt: firebase.database.ServerValue.TIMESTAMP });
+        await db.ref(`friends/${currentUser.uid}/${friendUid}`).set({
+            addedAt: firebase.database.ServerValue.TIMESTAMP
+        });
+        await db.ref(`friends/${friendUid}/${currentUser.uid}`).set({
+            addedAt: firebase.database.ServerValue.TIMESTAMP
+        });
         friendsCache[friendUid] = true;
         if (!allUsersCache[friendUid]) {
             const snap = await db.ref('users/' + friendUid).get();
-            if (snap.exists()) allUsersCache[friendUid] = { uid: friendUid, ...snap.val() };
+            if (snap.exists()) {
+                allUsersCache[friendUid] = { uid: friendUid, ...snap.val() };
+            }
         }
         showToast('Friend added!', 'success');
-        if (userSearchFilter) searchUsers(userSearchFilter);
-        else renderFriendsList();
+        if (userSearchFilter) {
+            searchUsers(userSearchFilter);
+        } else {
+            renderFriendsList();
+        }
     } catch (error) {
         console.error('Add friend error:', error);
         showToast('Error adding friend', 'error');
@@ -470,7 +568,10 @@ async function removeFriend(friendUid) {
 function showUserInfo(uid) {
     if (!uid) return;
     const userData = allUsersCache[uid];
-    if (!userData) { showToast('User not found', 'error'); return; }
+    if (!userData) {
+        showToast('User not found', 'error');
+        return;
+    }
     const avatarColor = userData.avatarColor || getAvatarColor(uid);
     const initials = getInitials(userData.name || userData.email || '?');
     document.getElementById('profileAvatar').textContent = initials;
@@ -478,11 +579,14 @@ function showUserInfo(uid) {
     document.getElementById('profileName').textContent = userData.name || 'User';
     document.getElementById('profileEmail').textContent = userData.email || '';
     document.getElementById('profileBio').textContent = userData.bio || 'No bio yet';
+
     const createdAt = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown';
     document.getElementById('profileSince').textContent = createdAt;
+
     const actionsEl = document.getElementById('profileActions');
     actionsEl.innerHTML = '';
     const isFriend = friendsCache[uid];
+
     if (isFriend) {
         actionsEl.innerHTML += `
             <button class="btn btn-primary" onclick="startDirectChat('${uid}')"><i class="fas fa-comment-dots"></i> Start Chat</button>
@@ -493,6 +597,7 @@ function showUserInfo(uid) {
             <button class="btn btn-primary" onclick="addFriend('${uid}')"><i class="fas fa-user-plus"></i> Add Friend</button>
         `;
     }
+
     showScreen('userInfoScreen');
 }
 
@@ -509,7 +614,9 @@ function showCurrentUserInfo() {
         document.getElementById('profileEmail').textContent = userData.email || '';
         document.getElementById('profileBio').textContent = userData.bio || 'No bio yet';
         document.getElementById('profileSince').textContent = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Unknown';
-        document.getElementById('profileActions').innerHTML = `<button class="btn btn-secondary" onclick="closeUserInfo()">Close</button>`;
+        document.getElementById('profileActions').innerHTML = `
+            <button class="btn btn-secondary" onclick="closeUserInfo()">Close</button>
+        `;
         showScreen('userInfoScreen');
     }
 }
@@ -518,11 +625,14 @@ function showCurrentUserInfo() {
 function renderHomeChats() {
     const chatListEl = document.getElementById('chatList');
     chatListEl.innerHTML = '';
+
     const chatEntries = Object.entries(chatsCache);
     const filteredChats = chatEntries.filter(([chatId, chat]) => {
         if (!homeSearchFilter) return true;
-        return getChatDisplayName(chat).toLowerCase().includes(homeSearchFilter);
+        const otherName = getChatDisplayName(chat);
+        return otherName.toLowerCase().includes(homeSearchFilter);
     });
+
     if (filteredChats.length === 0) {
         const emptyState = document.createElement('div');
         emptyState.className = 'empty-state';
@@ -535,14 +645,22 @@ function renderHomeChats() {
         chatListEl.appendChild(emptyState);
         return;
     }
-    filteredChats.sort((a, b) => (b[1].lastMessageTime || 0) - (a[1].lastMessageTime || 0))
-        .forEach(([chatId, chat]) => chatListEl.appendChild(createChatListItem(chatId, chat)));
+
+    filteredChats
+        .sort((a, b) => (b[1].lastMessageTime || 0) - (a[1].lastMessageTime || 0))
+        .forEach(([chatId, chat]) => {
+            chatListEl.appendChild(createChatListItem(chatId, chat));
+        });
 }
 
 function getChatDisplayName(chat) {
-    if (chat.type === 'group') return chat.groupName || 'Group Chat';
+    if (chat.type === 'group') {
+        return chat.groupName || 'Group Chat';
+    }
     const otherUid = Object.keys(chat.participants).find(uid => uid !== currentUser?.uid);
-    if (otherUid && allUsersCache[otherUid]) return allUsersCache[otherUid].name || 'User';
+    if (otherUid && allUsersCache[otherUid]) {
+        return allUsersCache[otherUid].name || 'User';
+    }
     return 'Chat';
 }
 
@@ -550,6 +668,7 @@ function createChatListItem(chatId, chat) {
     const div = document.createElement('div');
     div.className = 'chat-item';
     div.setAttribute('data-chat-id', chatId);
+
     let displayName, avatarText, avatarColor, statusDot = '';
     if (chat.type === 'group') {
         displayName = chat.groupName || 'Group Chat';
@@ -564,13 +683,18 @@ function createChatListItem(chatId, chat) {
         avatarColor = userData.avatarColor || getAvatarColor(otherUid || '');
         statusDot = `<span class="status-dot online"></span>`;
     }
+
     const lastMsg = chat.lastMessage || 'No messages yet';
     const lastTime = chat.lastMessageTime ? formatTime(chat.lastMessageTime) : '';
     const unreadCount = chat.unreadCount?.[currentUser?.uid] || 0;
+
     div.innerHTML = `
         <div class="chat-avatar" style="background:${avatarColor};">${avatarText}${statusDot}</div>
         <div class="chat-info">
-            <div class="chat-name">${displayName} ${chat.type === 'group' ? '<span class="group-badge">GROUP</span>' : ''}</div>
+            <div class="chat-name">
+                ${displayName}
+                ${chat.type === 'group' ? '<span class="group-badge">GROUP</span>' : ''}
+            </div>
             <div class="chat-preview">${lastMsg}</div>
         </div>
         <div class="chat-meta">
@@ -578,7 +702,11 @@ function createChatListItem(chatId, chat) {
             ${unreadCount > 0 ? `<div class="unread-badge">${unreadCount}</div>` : ''}
         </div>
     `;
-    div.addEventListener('click', () => openChat(chatId, chat));
+
+    div.addEventListener('click', () => {
+        openChat(chatId, chat);
+    });
+
     return div;
 }
 
@@ -586,14 +714,24 @@ function formatTime(timestamp) {
     if (!timestamp) return '';
     const date = new Date(timestamp);
     const now = new Date();
-    const diffDays = Math.floor((now - date) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return date.toLocaleDateString('en-US', { weekday: 'short' });
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const diffMs = now - date;
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+        return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffDays === 1) {
+        return 'Yesterday';
+    } else if (diffDays < 7) {
+        return date.toLocaleDateString('en-US', { weekday: 'short' });
+    } else {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
 }
 
-function filterHomeChats(value) { homeSearchFilter = value.trim().toLowerCase(); renderHomeChats(); }
+function filterHomeChats(value) {
+    homeSearchFilter = value.trim().toLowerCase();
+    renderHomeChats();
+}
 
 // ============ NEW CHAT SCREEN ============
 function openNewChatScreen() {
@@ -615,13 +753,18 @@ function openCreateGroupScreen() {
     renderSelectedMembers();
     renderGroupMemberResults([]);
 }
+
 function updateGroupAvatarPreview() {
     const name = document.getElementById('groupNameInput').value.trim();
     document.getElementById('groupAvatarPreview').innerHTML = name ? getInitials(name) : '<i class="fas fa-users"></i>';
 }
+
 async function searchGroupMembers(query) {
     groupMemberSearchFilter = query.trim().toLowerCase();
-    if (!groupMemberSearchFilter) { renderGroupMemberResults([]); return; }
+    if (!groupMemberSearchFilter) {
+        renderGroupMemberResults([]);
+        return;
+    }
     showLoading();
     try {
         const usersSnap = await db.ref('users').get();
@@ -640,8 +783,11 @@ async function searchGroupMembers(query) {
     } catch (error) {
         console.error('Group member search error:', error);
         renderGroupMemberResults([]);
-    } finally { hideLoading(); }
+    } finally {
+        hideLoading();
+    }
 }
+
 function renderGroupMemberResults(results) {
     const container = document.getElementById('groupMemberResults');
     container.innerHTML = '';
@@ -659,19 +805,26 @@ function renderGroupMemberResults(results) {
                 <div class="user-name">${user.name || 'User'}</div>
                 <div class="user-email">${user.email || ''}</div>
             </div>
-            <button class="user-action-btn ${isSelected ? 'friend' : 'add'}" onclick="toggleGroupMember('${user.uid}','${(user.name||'User').replace(/'/g,"\\'")}','${user.avatarColor || getAvatarColor(user.uid)}')">
+            <button class="user-action-btn ${isSelected ? 'friend' : 'add'}" onclick="toggleGroupMember('${user.uid}')">
                 ${isSelected ? '✓ Added' : '+ Add'}
             </button>
         `;
         container.appendChild(div);
     });
 }
+
 function toggleGroupMember(uid) {
-    if (selectedGroupMembers.has(uid)) selectedGroupMembers.delete(uid);
-    else selectedGroupMembers.add(uid);
+    if (selectedGroupMembers.has(uid)) {
+        selectedGroupMembers.delete(uid);
+    } else {
+        selectedGroupMembers.add(uid);
+    }
     renderSelectedMembers();
-    if (groupMemberSearchFilter) searchGroupMembers(groupMemberSearchFilter);
+    if (groupMemberSearchFilter) {
+        searchGroupMembers(groupMemberSearchFilter);
+    }
 }
+
 function renderSelectedMembers() {
     const container = document.getElementById('selectedMembersChips');
     container.innerHTML = '';
@@ -679,18 +832,29 @@ function renderSelectedMembers() {
         const userData = allUsersCache[uid] || { name: 'User', avatarColor: getAvatarColor(uid) };
         const chip = document.createElement('div');
         chip.className = 'selected-member-chip';
-        chip.innerHTML = `${getInitials(userData.name || '?')} ${userData.name || 'User'} <button class="remove-chip" onclick="toggleGroupMember('${uid}')">×</button>`;
+        chip.innerHTML = `
+            ${getInitials(userData.name || '?')} ${userData.name || 'User'}
+            <button class="remove-chip" onclick="toggleGroupMember('${uid}')">×</button>
+        `;
         container.appendChild(chip);
     });
 }
+
 async function createGroup() {
     const groupName = document.getElementById('groupNameInput').value.trim();
-    if (!groupName) { showToast('Please enter a group name', 'error'); return; }
-    if (selectedGroupMembers.size === 0) { showToast('Please add at least one member', 'error'); return; }
+    if (!groupName) {
+        showToast('Please enter a group name', 'error');
+        return;
+    }
+    if (selectedGroupMembers.size === 0) {
+        showToast('Please add at least one member', 'error');
+        return;
+    }
     showLoading();
     try {
         const participants = { [currentUser.uid]: true };
-        selectedGroupMembers.forEach(uid => participants[uid] = true);
+        selectedGroupMembers.forEach(uid => { participants[uid] = true; });
+
         const chatRef = db.ref('chats').push();
         await chatRef.set({
             type: 'group',
@@ -708,7 +872,9 @@ async function createGroup() {
     } catch (error) {
         console.error('Create group error:', error);
         showToast('Error creating group', 'error');
-    } finally { hideLoading(); }
+    } finally {
+        hideLoading();
+    }
 }
 
 // ============ CHAT ============
@@ -719,6 +885,7 @@ async function startDirectChat(otherUid) {
         const uids = [currentUser.uid, otherUid].sort();
         const chatId = `direct_${uids[0]}_${uids[1]}`;
         let chat = chatsCache[chatId];
+
         if (!chat) {
             const chatSnap = await db.ref('chats/' + chatId).get();
             if (chatSnap.exists()) {
@@ -739,23 +906,33 @@ async function startDirectChat(otherUid) {
         }
         if (!allUsersCache[otherUid]) {
             const userSnap = await db.ref('users/' + otherUid).get();
-            if (userSnap.exists()) allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+            if (userSnap.exists()) {
+                allUsersCache[otherUid] = { uid: otherUid, ...userSnap.val() };
+            }
         }
         currentOtherUserUid = otherUid;
         openChat(chatId, chatsCache[chatId] || chat);
     } catch (error) {
         console.error('Start chat error:', error);
         showToast('Error starting chat', 'error');
-    } finally { hideLoading(); }
+    } finally {
+        hideLoading();
+    }
 }
 
 function openChat(chatId, chatData) {
     currentChatId = chatId;
     currentChatData = chatData;
-    currentOtherUserUid = chatData.type === 'direct' ? Object.keys(chatData.participants).find(uid => uid !== currentUser?.uid) : null;
+    currentOtherUserUid = chatData.type === 'direct' ?
+        Object.keys(chatData.participants).find(uid => uid !== currentUser?.uid) :
+        null;
+
     const displayName = getChatDisplayName(chatData);
     document.getElementById('chatHeaderName').textContent = displayName;
-    document.getElementById('chatHeaderStatus').textContent = chatData.type === 'group' ? `${Object.keys(chatData.participants).length} members` : 'online';
+    document.getElementById('chatHeaderStatus').textContent = chatData.type === 'group' ?
+        `${Object.keys(chatData.participants).length} members` :
+        'online';
+
     const avatarEl = document.getElementById('chatHeaderAvatar');
     if (chatData.type === 'group') {
         avatarEl.innerHTML = '<i class="fas fa-users"></i>';
@@ -765,16 +942,23 @@ function openChat(chatId, chatData) {
         avatarEl.textContent = getInitials(userData.name);
         avatarEl.style.background = userData.avatarColor || getAvatarColor(currentOtherUserUid);
     }
+
     document.getElementById('messagesContainer').innerHTML = '';
     document.getElementById('chatInput').value = '';
     document.getElementById('sendBtn').disabled = true;
+
     if (chatListeners['messages_' + chatId]) {
         chatListeners['messages_' + chatId]();
         delete chatListeners['messages_' + chatId];
     }
+
     chatListeners['messages_' + chatId] = db.ref('messages/' + chatId)
         .orderByChild('timestamp')
-        .on('value', (snap) => renderMessages(snap.val()));
+        .on('value', (snap) => {
+            const messagesData = snap.val();
+            renderMessages(messagesData);
+        });
+
     showScreen('chatScreen');
     setTimeout(scrollChatToBottom, 100);
 }
@@ -783,16 +967,19 @@ function renderMessages(messagesData) {
     const container = document.getElementById('messagesContainer');
     container.innerHTML = '';
     if (!messagesData) return;
+
     const messages = Object.values(messagesData).sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
     messages.forEach(msg => {
         const isSent = msg.senderUid === currentUser?.uid;
         const row = document.createElement('div');
         row.className = `message-row ${isSent ? 'sent' : 'received'}`;
+
         let senderName = '';
         if (!isSent && currentChatData?.type === 'group') {
             const senderData = allUsersCache[msg.senderUid];
             senderName = senderData?.name || 'User';
         }
+
         row.innerHTML = `
             <div class="message-bubble">
                 ${senderName ? `<span class="message-sender">${senderName}</span>` : ''}
@@ -804,24 +991,39 @@ function renderMessages(messagesData) {
     });
     scrollChatToBottom();
 }
+
 function formatMessageTime(timestamp) {
     if (!timestamp) return '';
-    return new Date(timestamp).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 }
+
 function scrollChatToBottom() {
     const container = document.getElementById('messagesContainer');
-    if (container) container.scrollTop = container.scrollHeight;
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
 }
-function onChatInput(value) { document.getElementById('sendBtn').disabled = !value.trim(); }
+
+function onChatInput(value) {
+    document.getElementById('sendBtn').disabled = !value.trim();
+}
+
 function onChatKeydown(event) {
-    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
+    if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
 }
+
 async function sendMessage() {
     const input = document.getElementById('chatInput');
     const text = input.value.trim();
     if (!text || !currentChatId || !currentUser) return;
+
     input.value = '';
     document.getElementById('sendBtn').disabled = true;
+
     try {
         const messageRef = db.ref('messages/' + currentChatId).push();
         await messageRef.set({
@@ -842,6 +1044,7 @@ async function sendMessage() {
         document.getElementById('sendBtn').disabled = false;
     }
 }
+
 function closeChatScreen() {
     if (chatListeners['messages_' + currentChatId]) {
         chatListeners['messages_' + currentChatId]();
@@ -857,13 +1060,23 @@ function closeChatScreen() {
 // ============ INITIALIZATION ============
 (function initFromCookies() {
     const savedEmail = getCookie('chatverse_user_email');
-    if (savedEmail) document.getElementById('loginEmail').value = savedEmail;
+    if (savedEmail) {
+        document.getElementById('loginEmail').value = savedEmail;
+    }
 })();
 
-document.getElementById('loginPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
-document.getElementById('loginEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleLogin(); });
-document.getElementById('regPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
-document.getElementById('regConfirmPassword').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('loginEmail').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleLogin();
+});
+document.getElementById('regPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleRegister();
+});
+document.getElementById('regConfirmPassword').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleRegister();
+});
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
