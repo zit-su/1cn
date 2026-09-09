@@ -277,7 +277,6 @@ function getAuthErrorMessage(error) {
 auth.onAuthStateChanged(async (user) => {
     if (user) {
         currentUser = user;
-        // Check cookies
         const savedEmail = getCookie('chatverse_user_email');
         const savedUid = getCookie('chatverse_user_uid');
         const savedName = getCookie('chatverse_user_name');
@@ -303,7 +302,6 @@ auth.onAuthStateChanged(async (user) => {
                 };
                 await db.ref('users/' + user.uid).set(currentUserData);
             }
-            // Update home avatar
             document.getElementById('homeAvatarText').textContent = getInitials(currentUserData.name);
             document.getElementById('homeAvatar').style.background = currentUserData.avatarColor || getAvatarColor(user.uid);
             document.getElementById('homeUserSubtitle').textContent = currentUserData.name || user.email;
