@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ChatVerse - Connect & Chat</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💬</text></svg>">
+    <!-- Font Awesome 6 CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
-    <!-- Firebase SDKs (Compat v10) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
@@ -26,55 +29,45 @@
         <div class="screen active" id="loginScreen">
             <div class="login-box">
                 <div class="login-logo">
-                    <div class="logo-icon">💬</div>
+                    <div class="logo-icon"><i class="fas fa-comments"></i></div>
                     <h1>ChatVerse</h1>
                     <p>Connect. Chat. Share.</p>
                 </div>
                 <div class="login-tabs">
                     <button class="login-tab active" id="loginTabBtn" onclick="switchLoginTab('login')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px;">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        Sign In
+                        <i class="fas fa-sign-in-alt"></i> Sign In
                     </button>
                     <button class="login-tab" id="registerTabBtn" onclick="switchLoginTab('register')">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:6px;">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="8.5" cy="7" r="4"></circle>
-                            <line x1="20" y1="8" x2="20" y2="14"></line>
-                            <line x1="23" y1="11" x2="17" y2="11"></line>
-                        </svg>
-                        Sign Up
+                        <i class="fas fa-user-plus"></i> Sign Up
                     </button>
                 </div>
                 <div class="login-error" id="loginError"></div>
                 <div id="loginFormSection">
                     <div class="form-group">
-                        <label>Email</label>
+                        <label><i class="fas fa-envelope"></i> Email</label>
                         <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" autocomplete="email">
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
+                        <label><i class="fas fa-lock"></i> Password</label>
                         <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
                     </div>
                     <button class="btn btn-primary" id="loginBtn" onclick="handleLogin()">Sign In</button>
                 </div>
                 <div id="registerFormSection" style="display:none;">
                     <div class="form-group">
-                        <label>Full Name</label>
+                        <label><i class="fas fa-user"></i> Full Name</label>
                         <input type="text" class="form-input" id="regName" placeholder="John Doe" autocomplete="name">
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
+                        <label><i class="fas fa-envelope"></i> Email</label>
                         <input type="email" class="form-input" id="regEmail" placeholder="you@example.com" autocomplete="email">
                     </div>
                     <div class="form-group">
-                        <label>Password</label>
+                        <label><i class="fas fa-lock"></i> Password</label>
                         <input type="password" class="form-input" id="regPassword" placeholder="Min 6 characters" autocomplete="new-password">
                     </div>
                     <div class="form-group">
-                        <label>Confirm Password</label>
+                        <label><i class="fas fa-lock"></i> Confirm Password</label>
                         <input type="password" class="form-input" id="regConfirmPassword" placeholder="Confirm password" autocomplete="new-password">
                     </div>
                     <button class="btn btn-primary" id="registerBtn" onclick="handleRegister()">Create Account</button>
@@ -95,19 +88,15 @@
                         <div class="header-subtitle" id="homeUserSubtitle">Loading...</div>
                     </div>
                 </div>
-                <button class="btn-icon" onclick="handleLogout()" title="Sign Out" style="font-size:18px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+                <button class="btn-icon" onclick="handleLogout()" title="Sign Out">
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
 
             <!-- Home Search Bar -->
             <div style="padding:10px 0 6px;display:flex;align-items:center;">
                 <div class="search-bar" style="margin:0 16px;max-width:none;flex:1;">
-                    <span class="search-icon">🔍</span>
+                    <i class="fas fa-search search-icon"></i>
                     <input type="text" id="homeSearchInput" placeholder="Search conversations..." oninput="filterHomeChats(this.value)">
                 </div>
             </div>
@@ -118,58 +107,50 @@
 
             <button class="fab" id="fabBtn" onclick="openNewChatScreen()" title="New Chat">
                 <span class="fab-ripple"></span>
-                <span style="position:relative;z-index:1;">+</span>
+                <i class="fas fa-plus"></i>
             </button>
         </div>
 
         <!-- ============ NEW CHAT / SEARCH SCREEN ============ -->
         <div class="screen" id="newChatScreen">
             <div class="app-header">
-                <button class="btn-icon" onclick="goBackToHome()">←</button>
+                <button class="btn-icon" onclick="goBackToHome()"><i class="fas fa-arrow-left"></i></button>
                 <div style="flex:1;text-align:center;">
                     <div class="header-title">New Chat</div>
                 </div>
                 <div style="width:44px;"></div>
             </div>
 
-            <!-- Create Group button at top -->
             <div style="padding:12px 16px 6px;">
-                <button class="btn btn-primary" style="width:100%;border-radius:var(--radius-md);" onclick="openCreateGroupScreen()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:8px;">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <line x1="23" y1="11" x2="17" y2="11"></line>
-                        <line x1="20" y1="8" x2="20" y2="14"></line>
-                    </svg>
-                    Create Group
+                <button class="btn btn-primary" style="width:100%;" onclick="openCreateGroupScreen()">
+                    <i class="fas fa-users"></i> Create Group
                 </button>
             </div>
 
-            <!-- Search bar -->
             <div style="padding:6px 16px 10px;">
                 <div class="search-bar" style="max-width:none;width:100%;margin:0;">
-                    <span class="search-icon">🔍</span>
+                    <i class="fas fa-search search-icon"></i>
                     <input type="text" id="userSearchInput" placeholder="Search users by name or email..." oninput="searchUsers(this.value)">
                 </div>
             </div>
 
             <div class="content-area" id="userSearchContent">
                 <div id="friendsListSection">
-                    <div class="section-title">Your Friends</div>
+                    <div class="section-title"><i class="fas fa-user-friends"></i> Your Friends</div>
                     <div id="friendsList"></div>
                     <div id="friendsEmptyState" class="empty-state" style="min-height:200px;padding:30px 20px;">
-                        <div class="empty-icon" style="width:80px;height:80px;font-size:36px;">👥</div>
-                        <h3 style="font-size:17px;">No Friends Yet</h3>
-                        <p style="font-size:13px;">Search above to find and add friends</p>
+                        <div class="empty-icon"><i class="fas fa-user-friends"></i></div>
+                        <h3>No Friends Yet</h3>
+                        <p>Search above to find and add friends</p>
                     </div>
                 </div>
                 <div id="searchResultsSection" style="display:none;">
                     <div class="section-title" id="searchResultsTitle">Search Results</div>
                     <div id="searchResultsList"></div>
                     <div id="searchEmptyState" class="empty-state" style="min-height:150px;padding:20px;display:none;">
-                        <div class="empty-icon" style="width:60px;height:60px;font-size:28px;">🔍</div>
-                        <h3 style="font-size:16px;">No Users Found</h3>
-                        <p style="font-size:13px;">Try a different search term</p>
+                        <div class="empty-icon"><i class="fas fa-search"></i></div>
+                        <h3>No Users Found</h3>
+                        <p>Try a different search term</p>
                     </div>
                 </div>
             </div>
@@ -178,7 +159,7 @@
         <!-- ============ CREATE GROUP SCREEN ============ -->
         <div class="screen" id="createGroupScreen">
             <div class="app-header">
-                <button class="btn-icon" onclick="closeCreateGroupScreen()">←</button>
+                <button class="btn-icon" onclick="closeCreateGroupScreen()"><i class="fas fa-arrow-left"></i></button>
                 <div style="flex:1;text-align:center;">
                     <div class="header-title">Create Group</div>
                 </div>
@@ -187,31 +168,26 @@
             <div class="content-area">
                 <div class="group-form">
                     <div class="group-avatar-wrapper">
-                        <div class="group-avatar-display" id="groupAvatarPreview">👥</div>
+                        <div class="group-avatar-display" id="groupAvatarPreview"><i class="fas fa-users"></i></div>
                     </div>
                     <div class="form-group">
-                        <label>Group Name</label>
+                        <label><i class="fas fa-tag"></i> Group Name</label>
                         <input type="text" class="form-input" id="groupNameInput" placeholder="e.g. Weekend Crew, Project Team..." oninput="updateGroupAvatarPreview()">
                     </div>
                     <div class="form-group">
-                        <label>Search Members</label>
-                        <!-- ADDED id="groupSearchBar" for specific corner radius -->
+                        <label><i class="fas fa-search"></i> Search Members</label>
                         <div class="search-bar" id="groupSearchBar" style="max-width:none;width:100%;margin:0;">
-                            <span class="search-icon">🔍</span>
+                            <i class="fas fa-search search-icon"></i>
                             <input type="text" id="groupMemberSearch" placeholder="Search users to add..." oninput="searchGroupMembers(this.value)">
                         </div>
                     </div>
                     <div class="selected-members" id="selectedMembersChips"></div>
                     <div style="margin-top:16px;">
-                        <div class="section-title" style="padding:0 0 8px;">Add Members</div>
+                        <div class="section-title">Add Members</div>
                         <div id="groupMemberResults"></div>
                     </div>
                     <button class="btn btn-primary" style="margin-top:20px;" onclick="createGroup()">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:middle; margin-right:8px;">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg>
-                        Create Group
+                        <i class="fas fa-check-circle"></i> Create Group
                     </button>
                 </div>
             </div>
@@ -220,24 +196,24 @@
         <!-- ============ USER INFO SCREEN ============ -->
         <div class="screen" id="userInfoScreen">
             <div class="user-profile-header" id="userProfileHeader">
-                <button class="btn-icon" style="position:absolute;top:12px;left:12px;color:#fff;font-size:20px;" onclick="closeUserInfo()">←</button>
+                <button class="btn-icon" style="position:absolute;top:12px;left:12px;color:#fff;" onclick="closeUserInfo()"><i class="fas fa-arrow-left"></i></button>
                 <div class="profile-avatar" id="profileAvatar">?</div>
                 <h2 id="profileName">User</h2>
                 <p id="profileEmail">email@example.com</p>
             </div>
             <div class="profile-details">
                 <div class="profile-detail-item">
-                    <div class="detail-icon">📋</div>
+                    <div class="detail-icon"><i class="fas fa-info-circle"></i></div>
                     <div>
                         <div class="detail-label">Bio</div>
-                        <div class="detail-value" id="profileBio" style="margin-left:0;text-align:left;max-width:100%;">No bio yet</div>
+                        <div class="detail-value" id="profileBio">No bio yet</div>
                     </div>
                 </div>
                 <div class="profile-detail-item">
-                    <div class="detail-icon">📅</div>
+                    <div class="detail-icon"><i class="fas fa-calendar-alt"></i></div>
                     <div>
                         <div class="detail-label">Member Since</div>
-                        <div class="detail-value" id="profileSince" style="margin-left:0;text-align:left;max-width:100%;">-</div>
+                        <div class="detail-value" id="profileSince">-</div>
                     </div>
                 </div>
             </div>
@@ -249,7 +225,7 @@
         <!-- ============ CHAT SCREEN ============ -->
         <div class="screen" id="chatScreen">
             <div class="app-header">
-                <button class="btn-icon" onclick="closeChatScreen()">←</button>
+                <button class="btn-icon" onclick="closeChatScreen()"><i class="fas fa-arrow-left"></i></button>
                 <div style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;" onclick="openChatInfo()">
                     <div class="header-avatar" id="chatHeaderAvatar" style="width:36px;height:36px;font-size:14px;">?</div>
                     <div>
@@ -263,9 +239,7 @@
             <div class="chat-input-bar">
                 <input type="text" id="chatInput" placeholder="Type a message..." oninput="onChatInput(this.value)" onkeydown="onChatKeydown(event)">
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>
